@@ -8,20 +8,165 @@
         <p class="mt-2 text-sm text-gray-600">System administration and management</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <a asp-controller="Course" asp-action="Index" class="card hover:shadow-xl transition">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">Manage Courses</h3>
-            <p class="text-sm text-gray-600">View and manage all courses</p>
-        </a>
+    <!-- Summary cards (use same styling as teacher dashboard) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="p-4 bg-white rounded-lg shadow flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500">Total Courses</p>
+                <p class="text-2xl font-semibold text-gray-900">@(ViewBag.TotalCourses ?? 0)</p>
+            </div>
+            <div>
+                <svg class="h-10 w-10 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V8H3v11a2 2 0 002 2z" />
+                </svg>
+            </div>
+        </div>
 
-        <a asp-controller="Report" asp-action="Index" class="card hover:shadow-xl transition">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">View Reports</h3>
-            <p class="text-sm text-gray-600">Access attendance reports</p>
-        </a>
+        <div class="p-4 bg-white rounded-lg shadow flex items-center justify-between">
+            <div>
+                <p class="text-sm text-gray-500">Total Students</p>
+                <p class="text-2xl font-semibold text-gray-900">@(ViewBag.TotalStudents ?? 0)</p>
+            </div>
+            <div>
+                <svg class="h-10 w-10 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M15 11a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+            </div>
+        </div>
+    </div>
 
-        <div class="card">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">System Overview</h3>
-            <p class="text-sm text-gray-600">Coming soon...</p>
+    <div class="card">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">All Courses</h2>
+            <div class="flex gap-2">
+                <a asp-controller="Course" asp-action="Create" class="btn-primary">Create Course</a>
+                <a asp-controller="Report" asp-action="Index" class="btn-secondary">View Reports</a>
+                <a asp-controller="Users" asp-action="Index" class="btn-secondary">Manage Users</a>
+            </div>
+        </div>
+
+        @if (ViewBag.Courses != null && ViewBag.Courses.Count > 0)
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach (var course in ViewBag.Courses)
+                {
+                    <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                        <div class="mb-4">
+                            <span class="inline-block bg-primary-100 text-primary-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                @course.CourseCode
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">@course.CourseName</h3>
+                        <p class="text-sm text-gray-600 mb-4">@course.Description</p>
+
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                            <span>@course.CreditHours Credit Hours</span>
+                            <span>@course.EnrolledStudents Students</span>
+                        </div>
+
+                        <div class="mt-4 flex gap-2">
+                            <a asp-controller="Course" asp-action="Edit" asp-route-id="@course.Id" class="flex-1 btn-primary text-center text-sm py-2">Edit</a>
+
+                            <form id="admin-delete-form-@course.Id" asp-controller="Course" asp-action="Delete" method="post" class="inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@course.Id" />
+                                <button type="button" data-form-id="admin-delete-form-@course.Id" data-course-name="@course.CourseName" class="admin-delete-course-btn flex-1 btn-secondary text-center text-sm py-2">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-12">
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No courses</h3>
+                <p class="mt-1 text-sm text-gray-500">Create some courses using the button above.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete confirmation modal for admin -->
+<div id="adminDeleteModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+    <div class="absolute inset-0 bg-black opacity-50" id="adminDeleteModalOverlay"></div>
+    <div class="bg-white rounded-lg shadow-lg z-10 max-w-lg w-full p-6 mx-4">
+        <h3 class="text-lg font-semibold text-gray-900">Confirm delete</h3>
+        <p class="mt-2 text-sm text-gray-600">Are you sure you want to delete the course <strong id="adminDeleteCourseName"></strong>? This action cannot be undone.</p>
+        <div class="mt-6 flex justify-end gap-3">
+            <button id="adminCancelDeleteBtn" class="btn-secondary">Cancel</button>
+            <button id="adminConfirmDeleteBtn" class="btn-primary">Delete</button>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        (function() {
+            let targetFormId = null;
+
+            const modal = document.getElementById('adminDeleteModal');
+            const modalOverlay = document.getElementById('adminDeleteModalOverlay');
+            const cancelBtn = document.getElementById('adminCancelDeleteBtn');
+            const confirmBtn = document.getElementById('adminConfirmDeleteBtn');
+            const courseNameEl = document.getElementById('adminDeleteCourseName');
+
+            function openModal(courseName, formId) {
+                targetFormId = formId;
+                if (courseNameEl) courseNameEl.textContent = courseName || '';
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            }
+
+            function closeModal() {
+                targetFormId = null;
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            }
+
+            // Delegate click to catch dynamically generated buttons
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest && e.target.closest('.admin-delete-course-btn');
+                if (!btn) return;
+                const formId = btn.getAttribute('data-form-id');
+                const courseName = btn.getAttribute('data-course-name');
+                openModal(courseName, formId);
+            });
+
+            if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+            if (modalOverlay) modalOverlay.addEventListener('click', closeModal);
+            if (confirmBtn) confirmBtn.addEventListener('click', function () {
+                if (targetFormId) {
+                    const form = document.getElementById(targetFormId);
+                    if (form) form.submit();
+                }
+            });
+
+            // Close modal on Escape (guard modal existence)
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+
+            // Global function to confirm delete with fallback
+            window.confirmDelete = function(formId, courseName) {
+                // If modal exists, open it; otherwise fallback to window.confirm
+                if (modal) {
+                    openModal(courseName, formId);
+                    return;
+                }
+
+                var ok = window.confirm('Are you sure you want to delete the course "' + (courseName || '') + '"?');
+                if (ok) {
+                    var form = document.getElementById(formId);
+                    if (form) form.submit();
+                }
+            };
+        })();
+    </script>
+}

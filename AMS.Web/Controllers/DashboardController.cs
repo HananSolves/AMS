@@ -57,7 +57,19 @@ public class DashboardController : Controller
     {
         var coursesResult = await _courseService.GetTeacherCoursesAsync(userId);
 
-        ViewBag.Courses = coursesResult.Data ?? new List<AMS.Application.DTOs.Course.CourseDto>();
+        var courses = coursesResult.Data ?? new List<AMS.Application.DTOs.Course.CourseDto>();
+
+        // calculate small summary stats for the teacher dashboard
+        ViewBag.Courses = courses;
+        ViewBag.TotalCourses = courses.Count;
+        try
+        {
+            ViewBag.TotalStudents = courses.Sum(c => c.EnrolledStudents);
+        }
+        catch
+        {
+            ViewBag.TotalStudents = 0;
+        }
 
         return View("Teacher");
     }
@@ -65,8 +77,21 @@ public class DashboardController : Controller
     
     private async Task<IActionResult> AdminDashboard()
     {
-        // For now, show basic admin view
-        // You can expand this later
+        // Fetch all courses so admin can view/edit/delete them from the dashboard
+        var coursesResult = await _courseService.GetAllCoursesAsync();
+        var courses = coursesResult.Data ?? new List<AMS.Application.DTOs.Course.CourseDto>();
+
+        ViewBag.Courses = courses;
+        ViewBag.TotalCourses = courses.Count;
+        try
+        {
+            ViewBag.TotalStudents = courses.Sum(c => c.EnrolledStudents);
+        }
+        catch
+        {
+            ViewBag.TotalStudents = 0;
+        }
+
         return View("Admin");
     }
     private int GetUserId()

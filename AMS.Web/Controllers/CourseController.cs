@@ -106,6 +106,95 @@ public class CourseController : Controller
     }
 
     [Authorize(Roles = "Teacher,Admin")]
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var userId = GetUserId();
+        var result = await _courseService.GetCourseByIdAsync(id, userId);
+
+        if (!result.Success)
+        {
+            TempData["ErrorMessage"] = result.Message;
+            return RedirectToAction(nameof(Index));
+        }
+
+        var course = result.Data;
+
+        var model = new CreateCourseDto
+        {
+            CourseCode = course.CourseCode,
+            CourseName = course.CourseName,
+            Description = course.Description,
+            CreditHours = course.CreditHours,
+            TeacherId = course.TeacherId
+        };
+
+        // ensure the view knows the current course id (used by the hidden input in the form)
+        ViewBag.CourseId = id;
+
+        if (User.IsInRole("Teacher"))
+        {
+            ViewBag.IsTeacher = true;
+            ViewBag.TeacherId = GetUserId();
+        }
+        else if (User.IsInRole("Admin"))
+        {
+            ViewBag.IsTeacher = false;
+            var teachersResult = await _authService.GetAllTeachersAsync();
+            ViewBag.Teachers = teachersResult.Data ?? new List<AMS.Application.DTOs.User.UserDto>();
+        }
+
+        return View(model);
+    }
+
+    [Authorize(Roles = "Teacher,Admin")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, CreateCourseDto model)
+    {
+        // If teacher is editing, ensure TeacherId is their own
+        if (User.IsInRole("Teacher"))
+        {
+            model.TeacherId = GetUserId();
+        }
+
+        // Always keep CourseId in ViewBag when returning view so hidden input retains a value
+        ViewBag.CourseId = id;
+
+        if (!ModelState.IsValid)
+        {
+            // Re-populate ViewBag for dropdown if admin
+            if (User.IsInRole("Admin"))
+            {
+                ViewBag.IsTeacher = false;
+                var teachersResult = await _authService.GetAllTeachersAsync();
+                ViewBag.Teachers = teachersResult.Data ?? new List<AMS.Application.DTOs.User.UserDto>();
+            }
+            return View(model);
+        }
+
+        var result = await _courseService.UpdateCourseAsync(id, model);
+
+        if (!result.Success)
+        {
+            ModelState.AddModelError(string.Empty, result.Message);
+
+            // ensure viewbag for admin dropdown is available
+            if (User.IsInRole("Admin"))
+            {
+                ViewBag.IsTeacher = false;
+                var teachersResult = await _authService.GetAllTeachersAsync();
+                ViewBag.Teachers = teachersResult.Data ?? new List<AMS.Application.DTOs.User.UserDto>();
+            }
+
+            return View(model);
+        }
+
+        TempData["SuccessMessage"] = "Course updated successfully!";
+        return RedirectToAction(nameof(Index));
+    }
+
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

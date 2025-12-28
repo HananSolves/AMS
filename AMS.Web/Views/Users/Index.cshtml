@@ -1,0 +1,132 @@
+@model List<AMS.Application.DTOs.User.UserDto>
+
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Users</h1>
+        <p class="mt-2 text-sm text-gray-600">Create, update or delete users</p>
+    </div>
+
+    <div class="card">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">All Users</h2>
+            <div class="flex gap-2">
+                <a asp-action="Create" class="btn-primary">Create User</a>
+                <a asp-controller="Dashboard" asp-action="Admin" class="btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+
+        @if (Model != null && Model.Count > 0)
+        {
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                            <th class="px-6 py-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach (var u in Model)
+                        {
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">@u.FullName</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@u.Email</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">@u.Role</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <a asp-action="Edit" asp-route-id="@u.Id" class="text-primary-600 hover:text-primary-900 mr-4">Edit</a>
+
+                                    <form id="user-delete-form-@u.Id" asp-action="Delete" method="post" class="inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@u.Id" />
+                                        <button type="button" data-form-id="user-delete-form-@u.Id" data-user-name="@u.FullName" class="user-delete-btn text-sm text-red-600 hover:underline">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-12">
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No users found</h3>
+                <p class="mt-1 text-sm text-gray-500">Create a user using the button above.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Delete confirmation modal for users -->
+<div id="userDeleteModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+    <div class="absolute inset-0 bg-black opacity-50" id="userDeleteModalOverlay"></div>
+    <div class="bg-white rounded-lg shadow-lg z-10 max-w-lg w-full p-6 mx-4">
+        <h3 class="text-lg font-semibold text-gray-900">Confirm delete</h3>
+        <p class="mt-2 text-sm text-gray-600">Are you sure you want to delete the user <strong id="userDeleteName"></strong>? This action will deactivate the account.</p>
+        <div class="mt-6 flex justify-end gap-3">
+            <button id="userCancelDeleteBtn" class="btn-secondary">Cancel</button>
+            <button id="userConfirmDeleteBtn" class="btn-primary">Delete</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function() {
+            let targetFormId = null;
+
+            const modal = document.getElementById('userDeleteModal');
+            const modalOverlay = document.getElementById('userDeleteModalOverlay');
+            const cancelBtn = document.getElementById('userCancelDeleteBtn');
+            const confirmBtn = document.getElementById('userConfirmDeleteBtn');
+            const nameEl = document.getElementById('userDeleteName');
+
+            function openModal(name, formId) {
+                targetFormId = formId;
+                if (nameEl) nameEl.textContent = name || '';
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            }
+
+            function closeModal() {
+                targetFormId = null;
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            }
+
+            document.addEventListener('click', function (e) {
+                const btn = e.target.closest && e.target.closest('.user-delete-btn');
+                if (!btn) return;
+                const formId = btn.getAttribute('data-form-id');
+                const name = btn.getAttribute('data-user-name');
+                openModal(name, formId);
+            });
+
+            if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+            if (modalOverlay) modalOverlay.addEventListener('click', closeModal);
+            if (confirmBtn) confirmBtn.addEventListener('click', function () {
+                if (targetFormId) {
+                    const form = document.getElementById(targetFormId);
+                    if (form) form.submit();
+                }
+            });
+
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+        })();
+    </script>
+}
+

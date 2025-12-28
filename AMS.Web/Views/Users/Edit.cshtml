@@ -1,0 +1,62 @@
+@model AMS.Web.Models.UserEditViewModel
+
+@{
+    ViewData["Title"] = "Edit User";
+}
+
+<div class="max-w-3xl mx-auto py-8">
+    <div class="bg-white py-8 px-6 shadow rounded-lg">
+        <form asp-action="Edit" method="post" class="space-y-6">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label asp-for="FirstName" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                    <input asp-for="FirstName" type="text" class="input-field" required />
+                    <span asp-validation-for="FirstName" class="text-red-600 text-sm"></span>
+                </div>
+
+                <div>
+                    <label asp-for="LastName" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                    <input asp-for="LastName" type="text" class="input-field" required />
+                    <span asp-validation-for="LastName" class="text-red-600 text-sm"></span>
+                </div>
+            </div>
+
+            <div>
+                <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                <input asp-for="Email" type="email" class="input-field" required />
+                <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
+            </div>
+
+            <div>
+                <label asp-for="Role" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                <select asp-for="Role" class="input-field" required>
+                    <option value="1" selected="@(Model.Role == AMS.Core.Enums.UserRole.Student)">Student</option>
+                    <option value="2" selected="@(Model.Role == AMS.Core.Enums.UserRole.Teacher)">Teacher</option>
+                    <option value="3" selected="@(Model.Role == AMS.Core.Enums.UserRole.Admin)">Admin</option>
+                </select>
+                <span asp-validation-for="Role" class="text-red-600 text-sm"></span>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <input asp-for="IsActive" type="checkbox" class="h-4 w-4" />
+                <label asp-for="IsActive" class="text-sm text-gray-700">Account Active</label>
+            </div>
+
+            <div>
+                <button type="submit" class="w-full btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // nothing special
+    </script>
+}
+
