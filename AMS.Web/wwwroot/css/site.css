@@ -633,6 +633,10 @@ video {
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
 
+.visible {
+  visibility: visible;
+}
+
 .absolute {
   position: absolute;
 }
@@ -652,6 +656,10 @@ video {
 
 .z-10 {
   z-index: 10;
+}
+
+.col-span-2 {
+  grid-column: span 2 / span 2;
 }
 
 .mx-auto {
@@ -778,16 +786,16 @@ video {
   height: 100%;
 }
 
+.min-h-\[20px\] {
+  min-height: 20px;
+}
+
 .min-h-full {
   min-height: 100%;
 }
 
 .min-h-screen {
   min-height: 100vh;
-}
-
-.min-h-\[20px\] {
-  min-height: 20px;
 }
 
 .w-12 {
@@ -810,12 +818,12 @@ video {
   width: 100%;
 }
 
-.min-w-full {
-  min-width: 100%;
-}
-
 .min-w-\[20px\] {
   min-width: 20px;
+}
+
+.min-w-full {
+  min-width: 100%;
 }
 
 .max-w-2xl {
