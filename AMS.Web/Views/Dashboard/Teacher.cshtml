@@ -1,0 +1,64 @@
+@{
+    ViewData["Title"] = "Teacher Dashboard";
+}
+
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Teacher Dashboard</h1>
+        <p class="mt-2 text-sm text-gray-600">Manage your courses and track student attendance.</p>
+    </div>
+
+    <div class="card">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-semibold text-gray-900">My Courses</h2>
+            <a asp-controller="Course" asp-action="Create" class="btn-primary">Create New Course</a>
+        </div>
+
+        @if (ViewBag.Courses != null && ViewBag.Courses.Count > 0)
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach (var course in ViewBag.Courses)
+                {
+                    <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition">
+                        <div class="mb-4">
+                            <span class="inline-block bg-primary-100 text-primary-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                @course.CourseCode
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">@course.CourseName</h3>
+                        <p class="text-sm text-gray-600 mb-4">@course.Description</p>
+                        
+                        <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                            <span>@course.CreditHours Credit Hours</span>
+                            <span>@course.EnrolledStudents Students</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-2">
+                            <a asp-controller="Attendance" asp-action="Mark" asp-route-courseId="@course.Id" 
+                               class="btn-primary text-center text-sm py-2">
+                                Mark Attendance
+                            </a>
+                            <a asp-controller="Course" asp-action="Details" asp-route-id="@course.Id" 
+                               class="btn-secondary text-center text-sm py-2">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center py-12">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No courses</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by creating a new course.</p>
+                <div class="mt-6">
+                    <a asp-controller="Course" asp-action="Create" class="btn-primary">Create Course</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

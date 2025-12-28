@@ -1,0 +1,102 @@
+@model List<AMS.Application.DTOs.Course.CourseDto>
+
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">All Courses</h1>
+            <p class="mt-2 text-sm text-gray-600">Browse and manage available courses</p>
+        </div>
+        @if (User.IsInRole("Teacher") || User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn-primary">Create New Course</a>
+        }
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach (var course in Model)
+            {
+                <div class="card hover:shadow-xl transition">
+                    <div class="mb-4">
+                        <div class="flex justify-between items-start">
+                            <span class="inline-block bg-primary-100 text-primary-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                @course.CourseCode
+                            </span>
+                            @if (course.IsEnrolled)
+                            {
+                                <span class="inline-block bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded">
+                                    Enrolled
+                                </span>
+                            }
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">@course.CourseName</h3>
+                    <p class="text-sm text-gray-600 mb-4 line-clamp-2">@course.Description</p>
+                    
+                    <div class="space-y-2 text-sm text-gray-600 mb-4">
+                        <div class="flex items-center">
+                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span>Instructor: @course.TeacherName</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            <span>@course.EnrolledStudents Students Enrolled</span>
+                        </div>
+                        <div class="flex items-center">
+                            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            <span>@course.CreditHours Credit Hours</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <a asp-action="Details" asp-route-id="@course.Id" class="flex-1 btn-secondary text-center text-sm py-2">
+                            View Details
+                        </a>
+                        
+                        @if (User.IsInRole("Student"))
+                        {
+                            @if (!course.IsEnrolled)
+                            {
+                                <form asp-controller="Enrollment" asp-action="Enroll" method="post" class="flex-1">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="courseId" value="@course.Id" />
+                                    <button type="submit" class="w-full btn-primary text-sm py-2">Enroll</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form asp-controller="Enrollment" asp-action="Unenroll" method="post" class="flex-1">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="courseId" value="@course.Id" />
+                                    <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded-lg transition">Unenroll</button>
+                                </form>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="card text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No courses available</h3>
+            <p class="mt-1 text-sm text-gray-500">No courses have been created yet.</p>
+        </div>
+    }
+</div>

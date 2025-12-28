@@ -1,0 +1,57 @@
+@model AMS.Application.DTOs.Course.CourseDto
+
+@{
+    ViewData["Title"] = "Course Details";
+}
+
+<div class="space-y-6">
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">@Model.CourseName</h1>
+            <p class="mt-2 text-sm text-gray-600">@Model.CourseCode</p>
+        </div>
+        <span class="inline-block bg-primary-100 text-primary-800 text-sm font-semibold px-4 py-2 rounded-full">
+            @Model.CreditHours Credit Hours
+        </span>
+    </div>
+
+    <div class="card">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Course Information</h2>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="text-sm font-medium text-gray-500">Description</label>
+                <p class="mt-1 text-gray-900">@Model.Description</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Instructor</label>
+                    <p class="mt-1 text-gray-900">@Model.TeacherName</p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Enrolled Students</label>
+                    <p class="mt-1 text-gray-900">@Model.EnrolledStudents</p>
+                </div>
+
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Created On</label>
+                    <p class="mt-1 text-gray-900">@Model.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex gap-4">
+            @if (User.IsInRole("Student") && !Model.IsEnrolled)
+            {
+                <form asp-controller="Enrollment" asp-action="Enroll" method="post" class="flex-1">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="courseId" value="@Model.Id" />
+                    <button type="submit" class="w-full btn-primary">Enroll in Course</button>
+                </form>
+            }
+            <a asp-action="Index" class="flex-1 btn-secondary text-center">Back to Courses</a>
+        </div>
+    </div>
+</div>

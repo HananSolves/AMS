@@ -1,0 +1,57 @@
+@model List<AMS.Application.DTOs.Attendance.AttendanceDto>
+
+@{
+    ViewData["Title"] = "My Attendance";
+}
+
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">My Attendance</h1>
+        <p class="mt-2 text-sm text-gray-600">View your attendance history across all courses</p>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="card">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        @foreach (var attendance in Model)
+                        {
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">@attendance.CourseName</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">@attendance.Date.ToString("MMM dd, yyyy")</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                        @(attendance.Status.ToString() == "Present" ? "bg-green-100 text-green-800" : 
+                                          attendance.Status.ToString() == "Late" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800")">
+                                        @attendance.StatusText
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-600">@(string.IsNullOrEmpty(attendance.Remarks) ? "-" : attendance.Remarks)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="card text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No attendance records</h3>
+            <p class="mt-1 text-sm text-gray-500">You don't have any attendance records yet.</p>
+        </div>
+    }
+</div>

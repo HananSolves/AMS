@@ -1,0 +1,93 @@
+is_global = true
+build_property.TargetFramework = net9.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = AMS.Web
+build_property.RootNamespace = AMS.Web
+build_property.ProjectDir = /home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 9.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = /home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 9.0
+build_property.EnableCodeStyleSeverity = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Attendance/Mark.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXR0ZW5kYW5jZS9NYXJrLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Attendance/ViewAttendance.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXR0ZW5kYW5jZS9WaWV3QXR0ZW5kYW5jZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Auth/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXV0aC9BY2Nlc3NEZW5pZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Auth/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXV0aC9Mb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Auth/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXV0aC9SZWdpc3Rlci5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Course/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ291cnNlL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Course/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ291cnNlL0RldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Course/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ291cnNlL0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Dashboard/Admin.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRGFzaGJvYXJkL0FkbWluLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Dashboard/Student.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRGFzaGJvYXJkL1N0dWRlbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Dashboard/Teacher.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRGFzaGJvYXJkL1RlYWNoZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Error/NotFound.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRXJyb3IvTm90Rm91bmQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Report/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUmVwb3J0L0luZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Web/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-8vc363qspb

@@ -1,0 +1,112 @@
+@model AMS.Application.DTOs.Auth.RegisterDto
+
+@{
+    ViewData["Title"] = "Register";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AMS</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body class="h-full">
+    <div class="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full">
+            <div>
+                <h2 class="text-center text-3xl font-extrabold text-gray-900 mb-2">
+                    Create Your Account
+                </h2>
+                <p class="text-center text-sm text-gray-600 mb-8">
+                    Register to access the Attendance Management System
+                </p>
+            </div>
+            
+            <div class="bg-white py-8 px-6 shadow rounded-lg">
+                <form asp-action="Register" method="post" class="space-y-6" id="registerForm">
+                    @Html.AntiForgeryToken()
+                    
+                    <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label asp-for="FirstName" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                            <input asp-for="FirstName" type="text" class="input-field" required />
+                            <span asp-validation-for="FirstName" class="text-red-600 text-sm"></span>
+                        </div>
+
+                        <div>
+                            <label asp-for="LastName" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                            <input asp-for="LastName" type="text" class="input-field" required />
+                            <span asp-validation-for="LastName" class="text-red-600 text-sm"></span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                        <input asp-for="Email" type="email" class="input-field" required />
+                        <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <div>
+                        <label asp-for="Role" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                        <select asp-for="Role" class="input-field" id="roleSelect" required>
+                            <option value="">Select Role</option>
+                            <option value="1">Student</option>
+                            <option value="2">Teacher</option>
+                        </select>
+                        <span asp-validation-for="Role" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <div id="regNumberField" class="hidden">
+                        <label asp-for="RegistrationNumber" class="block text-sm font-medium text-gray-700 mb-2">Registration Number</label>
+                        <input asp-for="RegistrationNumber" type="text" class="input-field" placeholder="2023-CS-001" />
+                        <span asp-validation-for="RegistrationNumber" class="text-red-600 text-sm"></span>
+                        <p class="text-xs text-gray-500 mt-1">Format: YYYY-DEPT-###</p>
+                    </div>
+
+                    <div>
+                        <label asp-for="Password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input asp-for="Password" type="password" class="input-field" required />
+                        <span asp-validation-for="Password" class="text-red-600 text-sm"></span>
+                        <p class="text-xs text-gray-500 mt-1">Must contain uppercase, lowercase, number, and special character</p>
+                    </div>
+
+                    <div>
+                        <label asp-for="ConfirmPassword" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <input asp-for="ConfirmPassword" type="password" class="input-field" required />
+                        <span asp-validation-for="ConfirmPassword" class="text-red-600 text-sm"></span>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="w-full btn-primary">
+                            Create Account
+                        </button>
+                    </div>
+
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600">
+                            Already have an account? 
+                            <a asp-action="Login" class="text-primary-600 hover:text-primary-700 font-medium">Sign in</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('roleSelect').addEventListener('change', function() {
+            const regNumberField = document.getElementById('regNumberField');
+            if (this.value === '1') { // Student
+                regNumberField.classList.remove('hidden');
+            } else {
+                regNumberField.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

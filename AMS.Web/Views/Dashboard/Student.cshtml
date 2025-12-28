@@ -1,0 +1,78 @@
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Student Dashboard</h1>
+        <p class="mt-2 text-sm text-gray-600">Welcome back! Here's your attendance overview.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Enrolled Courses Card -->
+        <div class="card">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">My Courses</h2>
+            @if (ViewBag.Enrollments != null && ViewBag.Enrollments.Count > 0)
+            {
+                <div class="space-y-3">
+                    @foreach (var enrollment in ViewBag.Enrollments)
+                    {
+                        <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold text-gray-900">@enrollment.CourseName</p>
+                                    <p class="text-sm text-gray-600">@enrollment.CourseCode</p>
+                                </div>
+                                <a asp-controller="Course" asp-action="Details" asp-route-id="@enrollment.CourseId" 
+                                   class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-gray-500 text-center py-4">No courses enrolled yet</p>
+                <a asp-controller="Course" asp-action="Index" class="btn-primary w-full mt-4">Browse Courses</a>
+            }
+        </div>
+
+        <!-- Recent Attendance Card -->
+        <div class="card">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Recent Attendance</h2>
+            @if (ViewBag.RecentAttendance != null && ViewBag.RecentAttendance.Count > 0)
+            {
+                <div class="space-y-3">
+                    @foreach (var attendance in ViewBag.RecentAttendance)
+                    {
+                        <div class="border-l-4 @(attendance.Status.ToString() == "Present" ? "border-green-500" : attendance.Status.ToString() == "Late" ? "border-yellow-500" : "border-red-500") pl-4 py-2">
+                            <p class="font-medium text-gray-900">@attendance.CourseName</p>
+                            <p class="text-sm text-gray-600">@attendance.Date.ToString("MMM dd, yyyy")</p>
+                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded-full mt-1
+                                @(attendance.Status.ToString() == "Present" ? "bg-green-100 text-green-800" : 
+                                  attendance.Status.ToString() == "Late" ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800")">
+                                @attendance.StatusText
+                            </span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-gray-500 text-center py-4">No attendance records yet</p>
+            }
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card">
+        <h2 class="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <a asp-controller="Course" asp-action="Index" class="btn-primary text-center">Browse Courses</a>
+            <a asp-controller="Attendance" asp-action="ViewAttendance" class="btn-secondary text-center">View Attendance</a>
+            <a asp-controller="Report" asp-action="Index" class="btn-secondary text-center">View Reports</a>
+        </div>
+    </div>
+</div>

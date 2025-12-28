@@ -1,0 +1,223 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Infrastructure/AMS.Infrastructure.csproj": {}
+  },
+  "projects": {
+    "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Application/AMS.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Application/AMS.Application.csproj",
+        "projectName": "AMS.Application",
+        "projectPath": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Application/AMS.Application.csproj",
+        "packagesPath": "/home/avgUser/.nuget/packages/",
+        "outputPath": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Application/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/avgUser/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/usr/lib64/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Core/AMS.Core.csproj": {
+                "projectPath": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Core/AMS.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "BCrypt.Net-Next": {
+              "target": "Package",
+              "version": "[4.0.3, )"
+            },
+            "Microsoft.Extensions.Options": {
+              "target": "Package",
+              "version": "[10.0.1, )"
+            },
+            "QuestPDF": {
+              "target": "Package",
+              "version": "[2025.12.1, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.15.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/9.0.112/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Core/AMS.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Core/AMS.Core.csproj",
+        "projectName": "AMS.Core",
+        "projectPath": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Core/AMS.Core.csproj",
+        "packagesPath": "/home/avgUser/.nuget/packages/",
+        "outputPath": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Core/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/avgUser/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/usr/lib64/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/9.0.112/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Infrastructure/AMS.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Infrastructure/AMS.Infrastructure.csproj",
+        "projectName": "AMS.Infrastructure",
+        "projectPath": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Infrastructure/AMS.Infrastructure.csproj",
+        "packagesPath": "/home/avgUser/.nuget/packages/",
+        "outputPath": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Infrastructure/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/avgUser/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "/usr/lib64/dotnet/library-packs": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+            "projectReferences": {
+              "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Application/AMS.Application.csproj": {
+                "projectPath": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Application/AMS.Application.csproj"
+              },
+              "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Core/AMS.Core.csproj": {
+                "projectPath": "/home/avgUser/RiderProjects/AttendanceManagementSystem/AMS.Core/AMS.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.100"
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Pomelo.EntityFrameworkCore.MySql": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/9.0.112/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
