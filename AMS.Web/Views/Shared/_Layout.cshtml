@@ -17,6 +17,14 @@
                             <div class="flex-shrink-0">
                                 <span class="text-white text-xl font-bold">AMS</span>
                             </div>
+                            <!-- Mobile menu button -->
+                            <div class="md:hidden ml-3">
+                                <button id="mobileMenuToggle" class="text-white p-2 rounded-md focus:outline-none">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                </button>
+                            </div>
                             <div class="hidden md:block">
                                 <div class="ml-10 flex items-baseline space-x-4">
                                     <a asp-controller="Dashboard" asp-action="Index" class="text-white hover:bg-primary-700 px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
@@ -43,7 +51,30 @@
                                 </form>
                             </div>
                         </div>
+                    </div>
+                    <!-- Mobile navigation (hidden by default) -->
+                    <div id="mobileNav" class="md:hidden hidden mt-2">
+                        <div class="px-2 pt-2 pb-3 space-y-1">
+                            <a asp-controller="Dashboard" asp-action="Index" class="block text-white px-3 py-2 rounded-md text-base font-medium">Dashboard</a>
+                            <a asp-controller="Course" asp-action="Index" class="block text-white px-3 py-2 rounded-md text-base font-medium">Courses</a>
+                            @if (User.IsInRole("Student"))
+                            {
+                                <a asp-controller="Attendance" asp-action="ViewAttendance" class="block text-white px-3 py-2 rounded-md text-base font-medium">My Attendance</a>
+                            }
+                            <a asp-controller="Report" asp-action="Index" class="block text-white px-3 py-2 rounded-md text-base font-medium">Reports</a>
                         </div>
+                        <div class="px-4 pb-3 border-t border-primary-700">
+                            <div class="flex items-center justify-between">
+                                <div class="text-white">
+                                    <div class="text-sm font-medium">@userName</div>
+                                </div>
+                                <form asp-controller="Auth" asp-action="Logout" method="post" class="inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium">Logout</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </nav>
         }
@@ -75,6 +106,23 @@
     <!-- Ensure jQuery is loaded before validation/unobtrusive scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
+    <script>
+        // Mobile menu toggle hookup (small inline helper to avoid large refactor)
+        document.addEventListener('DOMContentLoaded', function () {
+            var toggle = document.getElementById('mobileMenuToggle');
+            var nav = document.getElementById('mobileNav');
+            if (toggle && nav) {
+                toggle.addEventListener('click', function () {
+                    if (nav.classList.contains('hidden')) {
+                        nav.classList.remove('hidden');
+                    } else {
+                        nav.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
+     @await RenderSectionAsync("Scripts", required: false)
+ </body>
+ </html>
+

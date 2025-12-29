@@ -102,6 +102,13 @@ public class CourseController : Controller
             return RedirectToAction(nameof(Index));
         }
 
+        // Guard against a null Data payload even when Success is true
+        if (result.Data == null)
+        {
+            TempData["ErrorMessage"] = "Course not found.";
+            return RedirectToAction(nameof(Index));
+        }
+
         return View(result.Data);
     }
 
@@ -115,6 +122,13 @@ public class CourseController : Controller
         if (!result.Success)
         {
             TempData["ErrorMessage"] = result.Message;
+            return RedirectToAction(nameof(Index));
+        }
+
+        // Guard against a null Data payload even when Success is true
+        if (result.Data == null)
+        {
+            TempData["ErrorMessage"] = "Course not found.";
             return RedirectToAction(nameof(Index));
         }
 

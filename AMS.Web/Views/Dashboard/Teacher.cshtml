@@ -38,7 +38,9 @@
     <div class="card">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-semibold text-gray-900">My Courses</h2>
-            <a asp-controller="Course" asp-action="Create" class="btn-primary">Create New Course</a>
+            <div class="w-48 sm:w-auto">
+                <a asp-controller="Course" asp-action="Create" class="btn-primary w-full text-center">Create New Course</a>
+            </div>
         </div>
 
         @if (ViewBag.Courses != null && ViewBag.Courses.Count > 0)
@@ -60,27 +62,27 @@
                             <span>@course.EnrolledStudents Students</span>
                         </div>
                         
-                        <div class="grid grid-cols-2 gap-2">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             <a asp-controller="Attendance" asp-action="Mark" asp-route-courseId="@course.Id" 
-                               class="btn-primary text-center text-sm py-2">
+                               class="w-full sm:flex-1 btn-primary text-center text-sm py-2">
                                 Mark Attendance
                             </a>
                             <a asp-controller="Course" asp-action="Details" asp-route-id="@course.Id" 
-                               class="btn-secondary text-center text-sm py-2">
+                               class="w-full sm:flex-1 btn-secondary text-center text-sm py-2">
                                 View Details
                             </a>
                         </div>
 
                         <!-- Edit/Delete actions -->
-                        <div class="mt-4 flex gap-2">
+                        <div class="mt-4 flex flex-col sm:flex-row gap-2">
                             <a asp-controller="Course" asp-action="Edit" asp-route-id="@course.Id" 
-                               class="flex-1 btn-primary text-center text-sm py-2">Edit</a>
+                               class="w-full sm:flex-1 btn-primary text-center text-sm py-2">Edit</a>
 
-                            <form id="delete-form-@course.Id" asp-controller="Course" asp-action="Delete" method="post" class="inline">
+                            <form id="delete-form-@course.Id" asp-controller="Course" asp-action="Delete" method="post" class="inline w-full sm:flex-1">
                                 @Html.AntiForgeryToken()
                                 <input type="hidden" name="id" value="@course.Id" />
                                 <!-- Use a button that opens the confirmation modal -->
-                                <button type="button" data-form-id="delete-form-@course.Id" data-course-name="@course.CourseName" class="delete-course-btn flex-1 btn-secondary text-center text-sm py-2">Delete</button>
+                                <button type="button" data-form-id="delete-form-@course.Id" data-course-name="@course.CourseName" class="delete-course-btn w-full btn-secondary text-center text-sm py-2">Delete</button>
                             </form>
                         </div>
                     </div>
