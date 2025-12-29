@@ -150,21 +150,3 @@ If you'd like to contribute:
 
 Please follow the existing code style and patterns used across the projects.
 
-## Next Steps / Roadmap
-- Add Dockerfile(s) and docker-compose for local development
-- Add CI (GitHub Actions) to build and run tests
-- Create API documentation / Swagger augmentation (Swashbuckle is already referenced)
-- Improve responsiveness of views (the UI currently needs mobile view fixes)
-- Implement comprehensive user management UI if missing
-
-## License
-Add a LICENSE file if you wish to open-source this project. No license is provided by default.
-
----
-
-If you'd like, I can also:
-- Add a short CONTRIBUTING.md and LICENSE file.
-- Create a minimal Dockerfile and a GitHub Actions CI workflow.
-- Generate a short `docs/` folder with architecture notes.
-
-Tell me which of the above you'd like next.
