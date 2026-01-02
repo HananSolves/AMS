@@ -42,20 +42,3 @@ ENV ASPNETCORE_URLS=http://+:8080
 ENTRYPOINT ["dotnet", "AMS.Web.dll"]
 ```
 
-### 3.3 Create .dockerignore
-
-Create `.dockerignore` in the root directory:
-```
-**/bin/
-**/obj/
-**/out/
-**/node_modules/
-**/.vs/
-**/.vscode/
-**/.idea/
-**/publish/
-**/*.user
-**/.DS_Store
-**/Thumbs.db
-**/.git/
-**/wwwroot/css/site.css
