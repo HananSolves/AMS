@@ -7,20 +7,22 @@ using AMS.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // =======================================================
-// 🔹 Render-friendly ENV configuration (ADD HERE)
+// 🔹 Render-friendly ENV configuration
 // =======================================================
 
 // Read connection string from environment variable (for Render deployment)
 var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
     ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Read JWT settings from environment
+// Read JWT settings from environment with validation
 var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") 
-    ?? builder.Configuration["JwtSettings:SecretKey"];
+    ?? builder.Configuration["JwtSettings:SecretKey"]
+    ?? throw new InvalidOperationException("JWT_SECRET_KEY must be configured in environment variables or appsettings.json");
 
 // =======================================================
 // Add services to the container
@@ -54,7 +56,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.Configure<JwtSettings>(options =>
 {
-    options.SecretKey = jwtSecretKey!;
+    options.SecretKey = jwtSecretKey;
     options.Issuer = builder.Configuration["JwtSettings:Issuer"]!;
     options.Audience = builder.Configuration["JwtSettings:Audience"]!;
     options.AccessTokenExpirationMinutes = int.Parse(builder.Configuration["JwtSettings:AccessTokenExpirationMinutes"]!);
@@ -119,6 +121,14 @@ builder.Services.AddSession(options =>
 });
 
 // =======================================================
+// Data Protection (for containerized environments)
+// =======================================================
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
+    .SetApplicationName("AttendanceManagementSystem");
+
+// =======================================================
 // Dependency Injection
 // =======================================================
 
@@ -162,15 +172,55 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    
     try
     {
+        logger.LogInformation("Starting database initialization...");
+        
+        // Log connection string info (first 50 chars only for security)
+        if (!string.IsNullOrEmpty(connectionString))
+        {
+            var safeConnectionString = connectionString.Length > 50 
+                ? connectionString.Substring(0, 50) + "..." 
+                : connectionString;
+            logger.LogInformation($"Connection string: {safeConnectionString}");
+        }
+        else
+        {
+            logger.LogWarning("Connection string is null or empty!");
+        }
+        
         var context = services.GetRequiredService<ApplicationDbContext>();
-        await DbInitializer.InitializeAsync(context);
+        
+        // Test database connection
+        logger.LogInformation("Testing database connection...");
+        var canConnect = await context.Database.CanConnectAsync();
+        
+        if (canConnect)
+        {
+            logger.LogInformation("Database connection successful");
+            await DbInitializer.InitializeAsync(context);
+            logger.LogInformation("Database initialization completed successfully");
+        }
+        else
+        {
+            logger.LogError("Cannot connect to database");
+        }
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while initializing the database");
+        logger.LogError($"Exception type: {ex.GetType().Name}");
+        logger.LogError($"Exception message: {ex.Message}");
+        
+        if (ex.InnerException != null)
+        {
+            logger.LogError($"Inner exception: {ex.InnerException.Message}");
+        }
+        
+        // Don't throw - allow app to start even if DB init fails
+        // This helps diagnose connection issues in production
     }
 }
 
@@ -207,4 +257,3 @@ app.MapControllerRoute(
     pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();
-
