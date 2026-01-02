@@ -31,12 +31,17 @@ RUN dotnet publish "AMS.Web/AMS.Web.csproj" -c Release -o /app/publish
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
-EXPOSE 8080
+
+# Create directory for data protection keys
+RUN mkdir -p /app/keys && chmod 777 /app/keys
+
+EXPOSE 10000
 
 # Copy published app
 COPY --from=publish /app/publish .
 
-# Set environment variable
-ENV ASPNETCORE_URLS=http://+:8080
+# Set environment variables
+ENV ASPNETCORE_URLS=http://+:10000
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 ENTRYPOINT ["dotnet", "AMS.Web.dll"]

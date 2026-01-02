@@ -15,7 +15,9 @@ services:
           name: ams-database
           property: connectionString
       - key: JWT_SECRET_KEY
-        generateValue: true
+        sync: false  # Changed from generateValue
+      - key: ASPNETCORE_URLS
+        value: http://+:10000
         
 databases:
   # MySQL Database
