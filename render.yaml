@@ -1,0 +1,25 @@
+services:
+  # Web Service
+  - type: web
+    name: attendance-management-system
+    env: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /Auth/Login
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ams-database
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+        
+databases:
+  # MySQL Database
+  - name: ams-database
+    plan: free
+    databaseName: AttendanceDB
+    user: amsadmin

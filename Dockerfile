@@ -1,39 +1,61 @@
-# ----------- BUILD STAGE -----------
+# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy solution and projects
-COPY AttendanceManagementSystem.sln ./
-COPY AMS.Core/ AMS.Core/
-COPY AMS.Application/ AMS.Application/
-COPY AMS.Infrastructure/ AMS.Infrastructure/
-COPY AMS.Web/ AMS.Web/
+# Copy project files
+COPY ["AMS.Core/AMS.Core.csproj", "AMS.Core/"]
+COPY ["AMS.Application/AMS.Application.csproj", "AMS.Application/"]
+COPY ["AMS.Infrastructure/AMS.Infrastructure.csproj", "AMS.Infrastructure/"]
+COPY ["AMS.Web/AMS.Web.csproj", "AMS.Web/"]
 
-# Restore NuGet packages
-RUN dotnet restore
+# Restore dependencies
+RUN dotnet restore "AMS.Web/AMS.Web.csproj"
 
-# Build the solution in Release mode
-RUN dotnet build -c Release --no-restore
+# Copy everything else
+COPY . .
 
-# Publish Web project
-RUN dotnet publish AMS.Web/AMS.Web.csproj -c Release -o /app/publish --no-build
+# Build Tailwind CSS
+WORKDIR /src/AMS.Web
+RUN apt-get update && apt-get install -y nodejs npm
+RUN npm install
+RUN npm run build:css
 
-# ----------- RUNTIME STAGE -----------
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS runtime
+# Build application
+WORKDIR /src
+RUN dotnet build "AMS.Web/AMS.Web.csproj" -c Release -o /app/build
+
+# Publish
+FROM build AS publish
+RUN dotnet publish "AMS.Web/AMS.Web.csproj" -c Release -o /app/publish
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
+EXPOSE 8080
 
-# Copy published files from build stage
-COPY --from=build /app/publish .
+# Copy published app
+COPY --from=publish /app/publish .
 
-# Optional: set environment variables
-ENV DOTNET_RUNNING_IN_CONTAINER=true
-ENV DOTNET_PRINT_TELEMETRY_MESSAGE=false
-ENV ASPNETCORE_ENVIRONMENT=Production
-# Render provides PORT environment variable automatically
-ENV ASPNETCORE_URLS=http://*:${PORT:-1000}
+# Set environment variable
+ENV ASPNETCORE_URLS=http://+:8080
 
-# Expose port (Render uses PORT environment variable)
-EXPOSE 1000
-
-# Entry point
 ENTRYPOINT ["dotnet", "AMS.Web.dll"]
+```
+
+### 3.3 Create .dockerignore
+
+Create `.dockerignore` in the root directory:
+```
+**/bin/
+**/obj/
+**/out/
+**/node_modules/
+**/.vs/
+**/.vscode/
+**/.idea/
+**/publish/
+**/*.user
+**/.DS_Store
+**/Thumbs.db
+**/.git/
+**/wwwroot/css/site.css

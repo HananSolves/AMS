@@ -1,4 +1,3 @@
-// AMS.Web/Program.cs
 using System.Text;
 using AMS.Application.Helpers;
 using AMS.Application.Services;
@@ -11,16 +10,36 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// =======================================================
+// 🔹 Render-friendly ENV configuration (ADD HERE)
+// =======================================================
+
+// Read connection string from environment variable (Render)
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
+    ?? builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Database connection string not configured");
+
+// Read JWT secret from environment variable
+var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
+    ?? builder.Configuration["JwtSettings:SecretKey"]
+    ?? throw new InvalidOperationException("JWT Secret Key not configured");
+
+// =======================================================
 // Add services to the container
+// =======================================================
+
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.ReferenceHandler =
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
-// Configure Database
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// =======================================================
+// Configure Database (MySQL with retries)
+// =======================================================
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
         mySqlOptions =>
@@ -31,14 +50,27 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 errorNumbersToAdd: null);
         }));
 
-// Configure JWT Settings
-var jwtSettings = builder.Configuration.GetSection("JwtSettings");
-builder.Services.Configure<JwtSettings>(jwtSettings);
+// =======================================================
+// Configure JWT Settings (ENV-safe)
+// =======================================================
 
-var key = Encoding.UTF8.GetBytes(jwtSettings.Get<JwtSettings>()?.SecretKey ?? 
-    throw new InvalidOperationException("JWT Secret Key not configured"));
+builder.Services.Configure<JwtSettings>(options =>
+{
+    options.SecretKey = jwtSecretKey;
+    options.Issuer = builder.Configuration["JwtSettings:Issuer"]!;
+    options.Audience = builder.Configuration["JwtSettings:Audience"]!;
+    options.AccessTokenExpirationMinutes =
+        int.Parse(builder.Configuration["JwtSettings:AccessTokenExpirationMinutes"]!);
+    options.RefreshTokenExpirationDays =
+        int.Parse(builder.Configuration["JwtSettings:RefreshTokenExpirationDays"]!);
+});
 
+var key = Encoding.UTF8.GetBytes(jwtSecretKey);
+
+// =======================================================
 // Configure Authentication
+// =======================================================
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -48,20 +80,20 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = false; // Set to true in production
+    options.RequireHttpsMetadata = true; // ✔️ Production-safe
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ValidateIssuer = true,
-        ValidIssuer = jwtSettings.Get<JwtSettings>()?.Issuer,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
         ValidateAudience = true,
-        ValidAudience = jwtSettings.Get<JwtSettings>()?.Audience,
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
 
-    // Handle JWT in cookies for MVC
+    // Read JWT from cookies (MVC support)
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
@@ -78,20 +110,27 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// Add Session
+// =======================================================
+// Session
+// =======================================================
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
-// Register Repositories and Unit of Work
+// =======================================================
+// Dependency Injection
+// =======================================================
+
+// Repositories & Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-// Register Services
+// Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IAttendanceService, AttendanceService>();
@@ -99,13 +138,15 @@ builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 
-// Register Helpers
+// Helpers
 builder.Services.AddScoped<JwtHelper>();
 
-// Add HTTP Context Accessor
 builder.Services.AddHttpContextAccessor();
 
-// Add CORS for API access if needed
+// =======================================================
+// CORS
+// =======================================================
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -118,7 +159,10 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Initialize database with seed data
+// =======================================================
+// Database Initialization
+// =======================================================
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -134,7 +178,10 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Configure the HTTP request pipeline
+// =======================================================
+// HTTP Pipeline
+// =======================================================
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -164,3 +211,4 @@ app.MapControllerRoute(
     pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();
+
