@@ -14,15 +14,13 @@ var builder = WebApplication.CreateBuilder(args);
 // 🔹 Render-friendly ENV configuration (ADD HERE)
 // =======================================================
 
-// Read connection string from environment variable (Render)
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL")
-    ?? builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("Database connection string not configured");
+// Read connection string from environment variable (for Render deployment)
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
+    ?? builder.Configuration.GetConnectionString("DefaultConnection");
 
-// Read JWT secret from environment variable
-var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-    ?? builder.Configuration["JwtSettings:SecretKey"]
-    ?? throw new InvalidOperationException("JWT Secret Key not configured");
+// Read JWT settings from environment
+var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") 
+    ?? builder.Configuration["JwtSettings:SecretKey"];
 
 // =======================================================
 // Add services to the container
@@ -37,13 +35,11 @@ builder.Services.AddControllersWithViews()
     });
 
 // =======================================================
-// Configure Database (MySQL with retries)
+// Configure Database
 // =======================================================
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(
-        connectionString, 
-        new MySqlServerVersion(new Version(8, 0, 21)), // ← Use your MySQL version
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
         mySqlOptions =>
         {
             mySqlOptions.EnableRetryOnFailure(
@@ -58,13 +54,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.Configure<JwtSettings>(options =>
 {
-    options.SecretKey = jwtSecretKey;
+    options.SecretKey = jwtSecretKey!;
     options.Issuer = builder.Configuration["JwtSettings:Issuer"]!;
     options.Audience = builder.Configuration["JwtSettings:Audience"]!;
-    options.AccessTokenExpirationMinutes =
-        int.Parse(builder.Configuration["JwtSettings:AccessTokenExpirationMinutes"]!);
-    options.RefreshTokenExpirationDays =
-        int.Parse(builder.Configuration["JwtSettings:RefreshTokenExpirationDays"]!);
+    options.AccessTokenExpirationMinutes = int.Parse(builder.Configuration["JwtSettings:AccessTokenExpirationMinutes"]!);
+    options.RefreshTokenExpirationDays = int.Parse(builder.Configuration["JwtSettings:RefreshTokenExpirationDays"]!);
 });
 
 var key = Encoding.UTF8.GetBytes(jwtSecretKey);
