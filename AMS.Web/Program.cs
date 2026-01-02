@@ -7,38 +7,60 @@ using AMS.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// =======================================================
-// 🔹 Render-friendly ENV configuration
-// =======================================================
+// Helper function to get MySQL connection string
+string GetConnectionString()
+{
+    // First, try custom MYSQL_CONNECTION_STRING
+    var mysqlConnectionString = Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING");
+    if (!string.IsNullOrEmpty(mysqlConnectionString))
+    {
+        Console.WriteLine("Using MYSQL_CONNECTION_STRING from environment");
+        return mysqlConnectionString;
+    }
 
-// Read connection string from environment variable (for Render deployment)
-var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
-    ?? builder.Configuration.GetConnectionString("DefaultConnection");
+    // Try to parse DATABASE_URL (Render format)
+    var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+    if (!string.IsNullOrEmpty(databaseUrl))
+    {
+        Console.WriteLine("Parsing DATABASE_URL from environment");
+        try
+        {
+            var uri = new Uri(databaseUrl);
+            var host = uri.Host;
+            var port = uri.Port > 0 ? uri.Port : 3306;
+            var database = uri.AbsolutePath.TrimStart('/');
+            var userInfo = uri.UserInfo.Split(':');
+            var username = userInfo[0];
+            var password = userInfo.Length > 1 ? userInfo[1] : "";
 
-// Read JWT settings from environment with validation
-var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") 
-    ?? builder.Configuration["JwtSettings:SecretKey"]
-    ?? throw new InvalidOperationException("JWT_SECRET_KEY must be configured in environment variables or appsettings.json");
+            var connectionString = $"Server={host};Port={port};Database={database};User={username};Password={password};SslMode=Preferred;";
+            Console.WriteLine($"Parsed connection: Server={host};Port={port};Database={database};User={username}");
+            return connectionString;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error parsing DATABASE_URL: {ex.Message}");
+        }
+    }
 
-// =======================================================
+    // Fallback to appsettings.json
+    Console.WriteLine("Using connection string from appsettings.json");
+    return builder.Configuration.GetConnectionString("DefaultConnection")!;
+}
+
 // Add services to the container
-// =======================================================
-
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
-        options.JsonSerializerOptions.ReferenceHandler =
-            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
-// =======================================================
 // Configure Database
-// =======================================================
+var connectionString = GetConnectionString();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
@@ -50,9 +72,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 errorNumbersToAdd: null);
         }));
 
-// =======================================================
-// Configure JWT Settings (ENV-safe)
-// =======================================================
+// Configure JWT Settings
+var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") 
+    ?? builder.Configuration["JwtSettings:SecretKey"]!;
 
 builder.Services.Configure<JwtSettings>(options =>
 {
@@ -65,10 +87,7 @@ builder.Services.Configure<JwtSettings>(options =>
 
 var key = Encoding.UTF8.GetBytes(jwtSecretKey);
 
-// =======================================================
 // Configure Authentication
-// =======================================================
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -78,7 +97,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = true; // ✔️ Production-safe
+    options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -91,7 +110,6 @@ builder.Services.AddAuthentication(options =>
         ClockSkew = TimeSpan.Zero
     };
 
-    // Read JWT from cookies (MVC support)
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
@@ -108,35 +126,20 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// =======================================================
-// Session
-// =======================================================
-
+// Add Session
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 });
 
-// =======================================================
-// Data Protection (for containerized environments)
-// =======================================================
-
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
-    .SetApplicationName("AttendanceManagementSystem");
-
-// =======================================================
-// Dependency Injection
-// =======================================================
-
-// Repositories & Unit of Work
+// Register Repositories and Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-// Services
+// Register Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IAttendanceService, AttendanceService>();
@@ -144,15 +147,13 @@ builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 
-// Helpers
+// Register Helpers
 builder.Services.AddScoped<JwtHelper>();
 
+// Add HTTP Context Accessor
 builder.Services.AddHttpContextAccessor();
 
-// =======================================================
-// CORS
-// =======================================================
-
+// Add CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -165,69 +166,27 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// =======================================================
-// Database Initialization
-// =======================================================
-
+// Initialize database with seed data
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    var logger = services.GetRequiredService<ILogger<Program>>();
-    
     try
     {
-        logger.LogInformation("Starting database initialization...");
-        
-        // Log connection string info (first 50 chars only for security)
-        if (!string.IsNullOrEmpty(connectionString))
-        {
-            var safeConnectionString = connectionString.Length > 50 
-                ? connectionString.Substring(0, 50) + "..." 
-                : connectionString;
-            logger.LogInformation($"Connection string: {safeConnectionString}");
-        }
-        else
-        {
-            logger.LogWarning("Connection string is null or empty!");
-        }
-        
+        Console.WriteLine("Initializing database...");
         var context = services.GetRequiredService<ApplicationDbContext>();
-        
-        // Test database connection
-        logger.LogInformation("Testing database connection...");
-        var canConnect = await context.Database.CanConnectAsync();
-        
-        if (canConnect)
-        {
-            logger.LogInformation("Database connection successful");
-            await DbInitializer.InitializeAsync(context);
-            logger.LogInformation("Database initialization completed successfully");
-        }
-        else
-        {
-            logger.LogError("Cannot connect to database");
-        }
+        await DbInitializer.InitializeAsync(context);
+        Console.WriteLine("Database initialized successfully!");
     }
     catch (Exception ex)
     {
+        var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while initializing the database");
-        logger.LogError($"Exception type: {ex.GetType().Name}");
-        logger.LogError($"Exception message: {ex.Message}");
-        
-        if (ex.InnerException != null)
-        {
-            logger.LogError($"Inner exception: {ex.InnerException.Message}");
-        }
-        
-        // Don't throw - allow app to start even if DB init fails
-        // This helps diagnose connection issues in production
+        Console.WriteLine($"Database initialization error: {ex.Message}");
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
     }
 }
 
-// =======================================================
-// HTTP Pipeline
-// =======================================================
-
+// Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -243,8 +202,6 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseStatusCodePagesWithReExecute("/Error/{0}");
-
 app.UseCors("AllowAll");
 
 app.UseAuthentication();
@@ -252,8 +209,11 @@ app.UseAuthorization();
 
 app.UseSession();
 
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Auth}/{action=Login}/{id?}");
 
+Console.WriteLine("Application starting...");
 app.Run();

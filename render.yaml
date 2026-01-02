@@ -1,5 +1,4 @@
 services:
-  # Web Service
   - type: web
     name: attendance-management-system
     env: docker
@@ -10,17 +9,12 @@ services:
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: ams-database
-          property: connectionString
+      - key: MYSQL_CONNECTION_STRING
+        value: Server=dpg-xxxxx-a.oregon-postgres.render.com;Port=3306;Database=AttendanceDB;User=amsadmin;Password=YOUR_PASSWORD;SslMode=Preferred;
       - key: JWT_SECRET_KEY
-        sync: false  # Changed from generateValue
-      - key: ASPNETCORE_URLS
-        value: http://+:10000
-        
+        generateValue: true
+
 databases:
-  # MySQL Database
   - name: ams-database
     plan: free
     databaseName: AttendanceDB
