@@ -5,53 +5,55 @@ using AMS.Core.Interfaces;
 using AMS.Infrastructure.Data;
 using AMS.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Helper function to get MySQL connection string
+// =======================================================
+// 🔹 Database Connection Helper
+// =======================================================
+
 string GetConnectionString()
 {
-    // First, try custom MYSQL_CONNECTION_STRING
-    var mysqlConnectionString = Environment.GetEnvironmentVariable("MYSQL_CONNECTION_STRING");
-    if (!string.IsNullOrEmpty(mysqlConnectionString))
-    {
-        Console.WriteLine("Using MYSQL_CONNECTION_STRING from environment");
-        return mysqlConnectionString;
-    }
-
-    // Try to parse DATABASE_URL (Render format)
+    // Try DATABASE_URL from Render (PostgreSQL format)
     var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
     if (!string.IsNullOrEmpty(databaseUrl))
     {
-        Console.WriteLine("Parsing DATABASE_URL from environment");
+        Console.WriteLine("Using DATABASE_URL from Render");
         try
         {
+            // Parse PostgreSQL connection string
+            // Format: postgresql://username:password@host:port/database
             var uri = new Uri(databaseUrl);
             var host = uri.Host;
-            var port = uri.Port > 0 ? uri.Port : 3306;
+            var port = uri.Port > 0 ? uri.Port : 5432;
             var database = uri.AbsolutePath.TrimStart('/');
             var userInfo = uri.UserInfo.Split(':');
             var username = userInfo[0];
             var password = userInfo.Length > 1 ? userInfo[1] : "";
 
-            var connectionString = $"Server={host};Port={port};Database={database};User={username};Password={password};SslMode=Preferred;";
-            Console.WriteLine($"Parsed connection: Server={host};Port={port};Database={database};User={username}");
+            var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+            Console.WriteLine($"Parsed connection: Host={host};Port={port};Database={database};Username={username}");
             return connectionString;
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error parsing DATABASE_URL: {ex.Message}");
+            throw;
         }
     }
 
-    // Fallback to appsettings.json
+    // Fallback to appsettings.json (for local development)
     Console.WriteLine("Using connection string from appsettings.json");
     return builder.Configuration.GetConnectionString("DefaultConnection")!;
 }
 
+// =======================================================
 // Add services to the container
+// =======================================================
+
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {
@@ -59,22 +61,29 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
-// Configure Database
+// =======================================================
+// Configure Database (PostgreSQL)
+// =======================================================
+
 var connectionString = GetConnectionString();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString),
-        mySqlOptions =>
-        {
-            mySqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(30),
-                errorNumbersToAdd: null);
-        }));
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorCodesToAdd: null);
+        npgsqlOptions.CommandTimeout(60);
+    }));
 
+// =======================================================
 // Configure JWT Settings
+// =======================================================
+
 var jwtSecretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY") 
-    ?? builder.Configuration["JwtSettings:SecretKey"]!;
+    ?? builder.Configuration["JwtSettings:SecretKey"]
+    ?? throw new InvalidOperationException("JWT_SECRET_KEY must be configured");
 
 builder.Services.Configure<JwtSettings>(options =>
 {
@@ -87,7 +96,10 @@ builder.Services.Configure<JwtSettings>(options =>
 
 var key = Encoding.UTF8.GetBytes(jwtSecretKey);
 
+// =======================================================
 // Configure Authentication
+// =======================================================
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -97,7 +109,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = false;
+    options.RequireHttpsMetadata = false; // Set to true in production if using HTTPS
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -126,7 +138,10 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-// Add Session
+// =======================================================
+// Session
+// =======================================================
+
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30);
@@ -135,11 +150,23 @@ builder.Services.AddSession(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
 });
 
-// Register Repositories and Unit of Work
+// =======================================================
+// Data Protection
+// =======================================================
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
+    .SetApplicationName("AttendanceManagementSystem");
+
+// =======================================================
+// Dependency Injection
+// =======================================================
+
+// Repositories & Unit of Work
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
-// Register Services
+// Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IAttendanceService, AttendanceService>();
@@ -147,13 +174,15 @@ builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<IPdfService, PdfService>();
 
-// Register Helpers
+// Helpers
 builder.Services.AddScoped<JwtHelper>();
 
-// Add HTTP Context Accessor
 builder.Services.AddHttpContextAccessor();
 
-// Add CORS
+// =======================================================
+// CORS
+// =======================================================
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -166,27 +195,64 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Initialize database with seed data
+// =======================================================
+// Database Initialization
+// =======================================================
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    
     try
     {
+        logger.LogInformation("Starting database initialization...");
         Console.WriteLine("Initializing database...");
+        
         var context = services.GetRequiredService<ApplicationDbContext>();
-        await DbInitializer.InitializeAsync(context);
-        Console.WriteLine("Database initialized successfully!");
+        
+        // Test database connection
+        logger.LogInformation("Testing database connection...");
+        var canConnect = await context.Database.CanConnectAsync();
+        
+        if (canConnect)
+        {
+            logger.LogInformation("Database connection successful");
+            Console.WriteLine("Database connected successfully!");
+            
+            // Run migrations
+            logger.LogInformation("Running migrations...");
+            await context.Database.MigrateAsync();
+            logger.LogInformation("Migrations completed");
+            
+            // Initialize seed data
+            await DbInitializer.InitializeAsync(context);
+            logger.LogInformation("Database initialization completed successfully");
+            Console.WriteLine("Database initialized successfully!");
+        }
+        else
+        {
+            logger.LogError("Cannot connect to database");
+            Console.WriteLine("ERROR: Cannot connect to database");
+        }
     }
     catch (Exception ex)
     {
-        var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "An error occurred while initializing the database");
         Console.WriteLine($"Database initialization error: {ex.Message}");
         Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        
+        if (ex.InnerException != null)
+        {
+            Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+        }
     }
 }
 
-// Configure the HTTP request pipeline
+// =======================================================
+// HTTP Pipeline
+// =======================================================
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -202,6 +268,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+
 app.UseCors("AllowAll");
 
 app.UseAuthentication();
@@ -209,7 +277,29 @@ app.UseAuthorization();
 
 app.UseSession();
 
-app.UseStatusCodePagesWithReExecute("/Error/{0}");
+// Health check endpoint
+app.MapGet("/health", async (ApplicationDbContext dbContext) => 
+{
+    try
+    {
+        var canConnect = await dbContext.Database.CanConnectAsync();
+        return Results.Ok(new { 
+            status = canConnect ? "healthy" : "unhealthy",
+            database = canConnect ? "connected" : "disconnected",
+            timestamp = DateTime.UtcNow,
+            environment = app.Environment.EnvironmentName 
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new { 
+            status = "unhealthy",
+            database = "error",
+            error = ex.Message,
+            timestamp = DateTime.UtcNow 
+        });
+    }
+});
 
 app.MapControllerRoute(
     name: "default",

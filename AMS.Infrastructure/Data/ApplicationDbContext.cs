@@ -51,9 +51,10 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.RegistrationNumber)
                 .HasMaxLength(50);
 
+            // PostgreSQL-compatible filter for unique index
             entity.HasIndex(e => e.RegistrationNumber)
                 .IsUnique()
-                .HasFilter("[RegistrationNumber] IS NOT NULL");
+                .HasFilter("\"RegistrationNumber\" IS NOT NULL");
 
             entity.Property(e => e.CreatedAt)
                 .IsRequired();
