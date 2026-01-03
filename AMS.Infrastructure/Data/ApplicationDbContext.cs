@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 
 namespace AMS.Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext, IDataProtectionKeyContext
+public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -16,7 +16,7 @@ public class ApplicationDbContext : DbContext, IDataProtectionKeyContext
     public DbSet<Attendance> Attendances { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 
-    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
+    // public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

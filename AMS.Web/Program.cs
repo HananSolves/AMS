@@ -155,8 +155,21 @@ builder.Services.AddSession(options =>
 // Data Protection (Store keys in database for container persistence)
 // =======================================================
 
+// builder.Services.AddDataProtection()
+//     .PersistKeysToDbContext<ApplicationDbContext>()
+//     .SetApplicationName("AttendanceManagementSystem")
+//     .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
+
+// =======================================================
+// Data Protection (Store keys in file system)
+// =======================================================
+
+var keysPath = Path.Combine(Directory.GetCurrentDirectory(), "DataProtectionKeys");
+Directory.CreateDirectory(keysPath);
+Console.WriteLine($"Data Protection keys directory: {keysPath}");
+
 builder.Services.AddDataProtection()
-    .PersistKeysToDbContext<ApplicationDbContext>()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
     .SetApplicationName("AttendanceManagementSystem")
     .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
 
