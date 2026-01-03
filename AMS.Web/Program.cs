@@ -156,7 +156,8 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddDataProtection()
     .PersistKeysToDbContext<ApplicationDbContext>()
-    .SetApplicationName("AttendanceManagementSystem");
+    .SetApplicationName("AttendanceManagementSystem")
+    .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
 
 // =======================================================
 // Dependency Injection

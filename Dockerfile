@@ -33,7 +33,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
 
 # Create directory for data protection keys
-RUN mkdir -p /app/keys && chmod 777 /app/keys
+# RUN mkdir -p /app/keys && chmod 777 /app/keys
 
 EXPOSE 10000
 
