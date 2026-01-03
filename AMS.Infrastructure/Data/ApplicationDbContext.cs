@@ -10,14 +10,13 @@ public class ApplicationDbContext : DbContext, IDataProtectionKeyContext
         : base(options)
     {
     }
-    
-    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
-    
     public DbSet<User> Users { get; set; }
     public DbSet<Course> Courses { get; set; }
     public DbSet<Enrollment> Enrollments { get; set; }
     public DbSet<Attendance> Attendances { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

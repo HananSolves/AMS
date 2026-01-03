@@ -209,45 +209,89 @@ using (var scope = app.Services.CreateScope())
     try
     {
         logger.LogInformation("Starting database initialization...");
-        Console.WriteLine("Initializing database...");
+        Console.WriteLine("=== DATABASE INITIALIZATION ===");
         
         var context = services.GetRequiredService<ApplicationDbContext>();
         
         // Test database connection
         logger.LogInformation("Testing database connection...");
+        Console.WriteLine("Testing database connection...");
+        
         var canConnect = await context.Database.CanConnectAsync();
         
         if (canConnect)
         {
-            logger.LogInformation("Database connection successful");
-            Console.WriteLine("Database connected successfully!");
+            logger.LogInformation("✓ Database connection successful");
+            Console.WriteLine("✓ Database connected successfully!");
+            
+            // List all migrations
+            var allMigrations = context.Database.GetMigrations().ToList();
+            Console.WriteLine($"Total migrations in project: {allMigrations.Count}");
+            
+            // Check pending migrations
+            var pendingMigrations = (await context.Database.GetPendingMigrationsAsync()).ToList();
+            Console.WriteLine($"Pending migrations: {pendingMigrations.Count}");
+            
+            if (pendingMigrations.Any())
+            {
+                Console.WriteLine("Pending migrations to apply:");
+                foreach (var migration in pendingMigrations)
+                {
+                    Console.WriteLine($"  - {migration}");
+                }
+            }
+            
+            // Check applied migrations
+            var appliedMigrations = (await context.Database.GetAppliedMigrationsAsync()).ToList();
+            Console.WriteLine($"Already applied migrations: {appliedMigrations.Count}");
             
             // Run migrations
-            logger.LogInformation("Running migrations...");
+            logger.LogInformation("Applying migrations...");
+            Console.WriteLine("Applying migrations...");
             await context.Database.MigrateAsync();
-            logger.LogInformation("Migrations completed");
+            logger.LogInformation("✓ Migrations completed successfully");
+            Console.WriteLine("✓ Migrations completed successfully!");
+            
+            // Verify critical tables exist
+            try
+            {
+                var hasUsers = await context.Users.AnyAsync();
+                Console.WriteLine($"✓ Users table accessible (count check passed)");
+                
+                var hasDataProtectionKeys = await context.DataProtectionKeys.AnyAsync();
+                Console.WriteLine($"✓ DataProtectionKeys table accessible");
+            }
+            catch (Exception tableEx)
+            {
+                Console.WriteLine($"⚠ Warning checking tables: {tableEx.Message}");
+            }
             
             // Initialize seed data
             await DbInitializer.InitializeAsync(context);
-            logger.LogInformation("Database initialization completed successfully");
-            Console.WriteLine("Database initialized successfully!");
+            logger.LogInformation("✓ Database initialization completed successfully");
+            Console.WriteLine("✓ Database initialized successfully!");
+            Console.WriteLine("=== INITIALIZATION COMPLETE ===");
         }
         else
         {
-            logger.LogError("Cannot connect to database");
-            Console.WriteLine("ERROR: Cannot connect to database");
+            logger.LogError("✗ Cannot connect to database");
+            Console.WriteLine("✗ ERROR: Cannot connect to database");
         }
     }
     catch (Exception ex)
     {
-        logger.LogError(ex, "An error occurred while initializing the database");
-        Console.WriteLine($"Database initialization error: {ex.Message}");
+        logger.LogError(ex, "✗ An error occurred while initializing the database");
+        Console.WriteLine($"✗ Database initialization error: {ex.Message}");
         Console.WriteLine($"Stack trace: {ex.StackTrace}");
         
         if (ex.InnerException != null)
         {
             Console.WriteLine($"Inner exception: {ex.InnerException.Message}");
+            Console.WriteLine($"Inner stack trace: {ex.InnerException.StackTrace}");
         }
+        
+        // Don't crash the app, but log the error
+        Console.WriteLine("⚠ Application will continue, but database may not be properly initialized");
     }
 }
 

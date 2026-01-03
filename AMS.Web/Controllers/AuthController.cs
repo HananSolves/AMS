@@ -27,7 +27,8 @@ public class AuthController : Controller
             HttpOnly = true,
             Secure = _env.IsProduction(), // Only require HTTPS in production
             SameSite = SameSiteMode.Lax, // Changed from Strict to Lax for better compatibility
-            Expires = expires
+            Expires = expires,
+            Domain = null // Let it auto-detect
         };
     }
 
