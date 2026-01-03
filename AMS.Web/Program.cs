@@ -151,11 +151,11 @@ builder.Services.AddSession(options =>
 });
 
 // =======================================================
-// Data Protection
+// Data Protection (Store keys in database for container persistence)
 // =======================================================
 
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/app/keys"))
+    .PersistKeysToDbContext<ApplicationDbContext>()
     .SetApplicationName("AttendanceManagementSystem");
 
 // =======================================================
