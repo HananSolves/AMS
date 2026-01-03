@@ -1,4 +1,3 @@
-<!-- AMS.Web/Views/Auth/Login.cshtml -->
 @model AMS.Application.DTOs.Auth.LoginDto
 
 @{
@@ -28,7 +27,7 @@
             
             <div class="mt-8 bg-white py-8 px-6 shadow rounded-lg">
                 <form asp-action="Login" method="post" class="space-y-6">
-                    @Html.AntiForgeryToken()
+                    @* Antiforgery token removed - validation disabled in Program.cs *@
                     
                     <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
 

@@ -25,10 +25,9 @@ public class AuthController : Controller
         return new CookieOptions
         {
             HttpOnly = true,
-            Secure = _env.IsProduction(), // Only require HTTPS in production
-            SameSite = SameSiteMode.Lax, // Changed from Strict to Lax for better compatibility
-            Expires = expires,
-            Domain = null // Let it auto-detect
+            Secure = true, // Always use HTTPS on Render
+            SameSite = SameSiteMode.Lax,
+            Expires = expires
         };
     }
 
@@ -46,7 +45,7 @@ public class AuthController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    // [ValidateAntiForgeryToken] - REMOVED: Antiforgery validation disabled
     public async Task<IActionResult> Login(LoginDto model, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
@@ -100,7 +99,7 @@ public class AuthController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    // [ValidateAntiForgeryToken] - REMOVED: Antiforgery validation disabled
     public async Task<IActionResult> Register(RegisterDto model)
     {
         if (!ModelState.IsValid)
@@ -150,7 +149,7 @@ public class AuthController : Controller
 
     [HttpPost]
     [Authorize]
-    [ValidateAntiForgeryToken]
+    // [ValidateAntiForgeryToken] - REMOVED: Antiforgery validation disabled
     public async Task<IActionResult> Logout()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);

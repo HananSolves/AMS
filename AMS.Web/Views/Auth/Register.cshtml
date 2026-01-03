@@ -27,7 +27,7 @@
             
             <div class="bg-white py-8 px-6 shadow rounded-lg">
                 <form asp-action="Register" method="post" class="space-y-6" id="registerForm">
-                    @Html.AntiForgeryToken()
+                    @* Antiforgery token removed - validation disabled in Program.cs *@
                     
                     <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
 
@@ -129,4 +129,3 @@
     <script src="~/js/password-toggle.js"></script>
 </body>
 </html>
-
