@@ -11,11 +11,24 @@ public class AuthController : Controller
 {
     private readonly IAuthService _authService;
     private readonly ILogger<AuthController> _logger;
+    private readonly IWebHostEnvironment _env;
 
-    public AuthController(IAuthService authService, ILogger<AuthController> logger)
+    public AuthController(IAuthService authService, ILogger<AuthController> logger, IWebHostEnvironment env)
     {
         _authService = authService;
         _logger = logger;
+        _env = env;
+    }
+
+    private CookieOptions GetCookieOptions(DateTimeOffset? expires = null)
+    {
+        return new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = _env.IsProduction(), // Only require HTTPS in production
+            SameSite = SameSiteMode.Lax, // Changed from Strict to Lax for better compatibility
+            Expires = expires
+        };
     }
 
     [HttpGet]
@@ -51,28 +64,18 @@ public class AuthController : Controller
         }
 
         // Store tokens in cookies
-        var cookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true, // Use true in production with HTTPS
-            SameSite = SameSiteMode.Strict,
-            Expires = result.Data!.ExpiresAt
-        };
-
-        Response.Cookies.Append("AccessToken", result.Data.AccessToken, cookieOptions);
-        Response.Cookies.Append("RefreshToken", result.Data.RefreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(7)
-        });
+        Response.Cookies.Append("AccessToken", result.Data!.AccessToken, 
+            GetCookieOptions(result.Data.ExpiresAt));
+        
+        Response.Cookies.Append("RefreshToken", result.Data.RefreshToken, 
+            GetCookieOptions(DateTimeOffset.UtcNow.AddDays(7)));
 
         // Store user info in session
         HttpContext.Session.SetString("UserId", result.Data.User.Id.ToString());
         HttpContext.Session.SetString("UserRole", result.Data.User.Role);
         HttpContext.Session.SetString("UserName", $"{result.Data.User.FirstName} {result.Data.User.LastName}");
 
+        _logger.LogInformation($"User {result.Data.User.Email} logged in successfully");
         TempData["SuccessMessage"] = "Login successful!";
 
         // Redirect to return URL or dashboard
@@ -127,28 +130,18 @@ public class AuthController : Controller
         }
 
         // Store tokens in cookies
-        var cookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = result.Data!.ExpiresAt
-        };
-
-        Response.Cookies.Append("AccessToken", result.Data.AccessToken, cookieOptions);
-        Response.Cookies.Append("RefreshToken", result.Data.RefreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(7)
-        });
+        Response.Cookies.Append("AccessToken", result.Data!.AccessToken, 
+            GetCookieOptions(result.Data.ExpiresAt));
+        
+        Response.Cookies.Append("RefreshToken", result.Data.RefreshToken, 
+            GetCookieOptions(DateTimeOffset.UtcNow.AddDays(7)));
 
         // Store user info in session
         HttpContext.Session.SetString("UserId", result.Data.User.Id.ToString());
         HttpContext.Session.SetString("UserRole", result.Data.User.Role);
         HttpContext.Session.SetString("UserName", $"{result.Data.User.FirstName} {result.Data.User.LastName}");
 
+        _logger.LogInformation($"User {result.Data.User.Email} registered successfully");
         TempData["SuccessMessage"] = "Registration successful! Welcome to AMS.";
 
         return RedirectToAction("Index", "Dashboard");
@@ -196,22 +189,11 @@ public class AuthController : Controller
         }
 
         // Update cookies with new tokens
-        var cookieOptions = new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = result.Data!.ExpiresAt
-        };
-
-        Response.Cookies.Append("AccessToken", result.Data.AccessToken, cookieOptions);
-        Response.Cookies.Append("RefreshToken", result.Data.RefreshToken, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
-            Expires = DateTimeOffset.UtcNow.AddDays(7)
-        });
+        Response.Cookies.Append("AccessToken", result.Data!.AccessToken, 
+            GetCookieOptions(result.Data.ExpiresAt));
+        
+        Response.Cookies.Append("RefreshToken", result.Data.RefreshToken, 
+            GetCookieOptions(DateTimeOffset.UtcNow.AddDays(7)));
 
         return Json(new { success = true, message = "Token refreshed successfully" });
     }

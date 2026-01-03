@@ -147,7 +147,8 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Allow non-HTTPS for Render's internal routing
+    options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
 // =======================================================
