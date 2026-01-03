@@ -109,7 +109,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
-    options.RequireHttpsMetadata = false; // Set to true in production if using HTTPS
+    options.RequireHttpsMetadata = true; // Changed to true for production
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
@@ -147,26 +147,27 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Allow non-HTTPS for Render's internal routing
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Changed to Always for production
     options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.Name = ".AMS.Session"; // Added unique name
 });
 
 // =======================================================
-// Data Protection (Store keys in database for container persistence)
-// =======================================================
-
-// builder.Services.AddDataProtection()
-//     .PersistKeysToDbContext<ApplicationDbContext>()
-//     .SetApplicationName("AttendanceManagementSystem")
-//     .SetDefaultKeyLifetime(TimeSpan.FromDays(90));
-
-// =======================================================
-// Data Protection (Store keys in file system)
+// Data Protection (File System)
 // =======================================================
 
 var keysPath = Path.Combine(Directory.GetCurrentDirectory(), "DataProtectionKeys");
-Directory.CreateDirectory(keysPath);
-Console.WriteLine($"Data Protection keys directory: {keysPath}");
+
+try
+{
+    Directory.CreateDirectory(keysPath);
+    Console.WriteLine($"✓ Data Protection keys directory created: {keysPath}");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"⚠ Warning: Could not create keys directory: {ex.Message}");
+    Console.WriteLine("Data Protection will use default in-memory storage");
+}
 
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
@@ -265,20 +266,6 @@ using (var scope = app.Services.CreateScope())
             logger.LogInformation("✓ Migrations completed successfully");
             Console.WriteLine("✓ Migrations completed successfully!");
             
-            // Verify critical tables exist
-            try
-            {
-                var hasUsers = await context.Users.AnyAsync();
-                Console.WriteLine($"✓ Users table accessible (count check passed)");
-                
-                var hasDataProtectionKeys = await context.DataProtectionKeys.AnyAsync();
-                Console.WriteLine($"✓ DataProtectionKeys table accessible");
-            }
-            catch (Exception tableEx)
-            {
-                Console.WriteLine($"⚠ Warning checking tables: {tableEx.Message}");
-            }
-            
             // Initialize seed data
             await DbInitializer.InitializeAsync(context);
             logger.LogInformation("✓ Database initialization completed successfully");
@@ -326,6 +313,34 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+// Clear corrupted antiforgery cookies middleware
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Microsoft.AspNetCore.Antiforgery.AntiforgeryValidationException)
+    {
+        // Clear all cookies related to antiforgery and auth
+        var antiforgeryCookies = context.Request.Cookies.Keys
+            .Where(k => k.StartsWith(".AspNetCore.Antiforgery.") || 
+                       k == "AccessToken" || 
+                       k == "RefreshToken" ||
+                       k == ".AMS.Session")
+            .ToList();
+        
+        foreach (var cookie in antiforgeryCookies)
+        {
+            context.Response.Cookies.Delete(cookie);
+        }
+        
+        // Redirect to login page
+        context.Response.Redirect("/Auth/Login");
+        return;
+    }
+});
 
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
