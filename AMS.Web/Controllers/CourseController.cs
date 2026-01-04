@@ -50,7 +50,6 @@ public class CourseController : Controller
 
     [Authorize(Roles = "Teacher,Admin")]
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateCourseDto model)
     {
         // If teacher is creating, override the TeacherId with their own ID
@@ -163,7 +162,6 @@ public class CourseController : Controller
 
     [Authorize(Roles = "Teacher,Admin")]
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, CreateCourseDto model)
     {
         // If teacher is editing, ensure TeacherId is their own
@@ -210,7 +208,6 @@ public class CourseController : Controller
 
     [Authorize(Roles = "Teacher,Admin")]
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
         var userId = GetUserId();

@@ -1,4 +1,3 @@
-// AMS.Web/Controllers/ReportController.cs
 using System.Security.Claims;
 using AMS.Application.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -82,6 +81,7 @@ public class ReportController : Controller
     }
 
     [HttpPost]
+    // No [ValidateAntiForgeryToken] needed - already globally disabled
     public async Task<IActionResult> ExportPdf(int? courseId, DateTime? startDate, DateTime? endDate)
     {
         var userId = GetUserId();

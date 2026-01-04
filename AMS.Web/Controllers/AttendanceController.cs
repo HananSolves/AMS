@@ -25,9 +25,6 @@ public class AttendanceController : Controller
 
     [Authorize(Roles = "Teacher")]
     [HttpGet]
-// AMS.Web/Controllers/AttendanceController.cs
-    [Authorize(Roles = "Teacher")]
-    [HttpGet]
     public async Task<IActionResult> Mark(int courseId)
     {
         var teacherId = GetUserId();
@@ -57,7 +54,7 @@ public class AttendanceController : Controller
 
     [Authorize(Roles = "Teacher")]
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    // [ValidateAntiForgeryToken] - REMOVED: Antiforgery validation disabled globally
     public async Task<IActionResult> Mark(MarkAttendanceDto model)
     {
         if (!ModelState.IsValid)

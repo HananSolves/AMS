@@ -48,7 +48,7 @@ public class UsersController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    // [ValidateAntiForgeryToken] - REMOVED: Antiforgery validation disabled globally
     public async Task<IActionResult> Create(RegisterDto model)
     {
         if (!ModelState.IsValid)
@@ -86,7 +86,7 @@ public class UsersController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    // [ValidateAntiForgeryToken] - REMOVED: Antiforgery validation disabled globally
     public async Task<IActionResult> Edit(AMS.Web.Models.UserEditViewModel model)
     {
         if (!ModelState.IsValid)
@@ -110,7 +110,7 @@ public class UsersController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
+    // [ValidateAntiForgeryToken] - REMOVED: Antiforgery validation disabled globally
     public async Task<IActionResult> Delete(int id)
     {
         var userRepo = _unitOfWork.Repository<User>();

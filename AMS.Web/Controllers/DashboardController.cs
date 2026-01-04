@@ -42,6 +42,7 @@ public class DashboardController : Controller
 
         return View("Error");
     }
+    
     private async Task<IActionResult> StudentDashboard(int userId)
     {
         var enrollmentsResult = await _enrollmentService.GetStudentEnrollmentsAsync(userId);
@@ -74,7 +75,6 @@ public class DashboardController : Controller
         return View("Teacher");
     }
 
-    
     private async Task<IActionResult> AdminDashboard()
     {
         // Fetch all courses so admin can view/edit/delete them from the dashboard
@@ -94,6 +94,7 @@ public class DashboardController : Controller
 
         return View("Admin");
     }
+    
     private int GetUserId()
     {
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);

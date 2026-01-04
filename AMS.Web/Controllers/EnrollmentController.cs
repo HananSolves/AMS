@@ -20,7 +20,6 @@ public class EnrollmentController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Enroll(int courseId)
     {
         var studentId = GetUserId();
@@ -39,7 +38,6 @@ public class EnrollmentController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Unenroll(int courseId)
     {
         var studentId = GetUserId();
