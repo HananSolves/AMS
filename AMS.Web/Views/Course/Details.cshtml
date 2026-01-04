@@ -45,11 +45,9 @@
         <div class="mt-6 flex gap-4">
             @if (User.IsInRole("Student") && !Model.IsEnrolled)
             {
-                <form asp-controller="Enrollment" asp-action="Enroll" method="post" class="flex-1">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="courseId" value="@Model.Id" />
-                    <button type="submit" class="w-full btn-primary">Enroll in Course</button>
-                </form>
+                <button class="enroll-btn btn-primary flex-1" data-course-id="@Model.Id">
+                    Enroll in Course
+                </button>
             }
             <a asp-action="Index" class="flex-1 btn-secondary text-center">Back to Courses</a>
         </div>

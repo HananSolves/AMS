@@ -79,11 +79,10 @@
                                class="w-full sm:flex-1 btn-primary text-center text-sm py-2">Edit</a>
 
                             <form id="delete-form-@course.Id" asp-controller="Course" asp-action="Delete" method="post" class="inline w-full sm:flex-1">
-                                @Html.AntiForgeryToken()
+                                @* @Html.AntiForgeryToken() *@
                                 <input type="hidden" name="id" value="@course.Id" />
                                 <!-- Use a button that opens the confirmation modal -->
-                                <button type="button" data-form-id="delete-form-@course.Id" data-course-name="@course.CourseName" class="delete-course-btn w-full btn-secondary text-center text-sm py-2">Delete</button>
-                            </form>
+                                <button type="button" data-course-id="@course.Id" class="delete-course-btn w-full btn-secondary text-center text-sm py-2">Delete</button>                            </form>
                         </div>
                     </div>
                 }

@@ -18,7 +18,7 @@
         @if (Model != null && Model.Any())
         {
             <form asp-action="ExportPdf" method="post" class="inline">
-                @Html.AntiForgeryToken()
+                @* @Html.AntiForgeryToken() *@
                 <input type="hidden" name="courseId" value="@selectedCourseId" />
                 <input type="hidden" name="startDate" value="@Context.Request.Query["startDate"]" />
                 <input type="hidden" name="endDate" value="@Context.Request.Query["endDate"]" />

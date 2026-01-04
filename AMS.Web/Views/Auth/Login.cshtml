@@ -26,25 +26,25 @@
             </div>
             
             <div class="mt-8 bg-white py-8 px-6 shadow rounded-lg">
-                <form asp-action="Login" method="post" class="space-y-6">
-                    @* Antiforgery token removed - validation disabled in Program.cs *@
-                    
+                <form asp-action="Login" method="post" class="space-y-6" id="loginForm">
+                     @* Antiforgery token removed - validation disabled in Program.cs *@
+
                     <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
 
                     <div>
                         <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                        <input asp-for="Email" type="email" class="input-field" placeholder="you@example.com" required />
+                        <input asp-for="Email" type="email" class="input-field" placeholder="you@example.com" required/>
                         <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
                     </div>
 
                     <div>
                         <label asp-for="Password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                         <div class="relative">
-                            <input asp-for="Password" type="password" id="password" class="input-field pr-10" placeholder="••••••••" required />
-    
+                            <input asp-for="Password" type="password" id="password" class="input-field pr-10" placeholder="••••••••" required/>
+
                             <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 pr-3 flex items-center z-10 focus:outline-none min-w-[20px] min-h-[20px]">
                                 <svg id="eye-icon" class="h-5 w-5 text-gray-400 hover:text-primary-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path id="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    <path id="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                 </svg>
                             </button>
                         </div>
@@ -59,7 +59,7 @@
 
                     <div class="text-center">
                         <p class="text-sm text-gray-600">
-                            Don't have an account? 
+                            Don't have an account?
                             <a asp-action="Register" class="text-primary-600 hover:text-primary-700 font-medium">Sign up</a>
                         </p>
                     </div>
@@ -68,6 +68,7 @@
         </div>
     </div>
 
-    <script src="~/js/password-toggle.js"></script>
+<script src="~/js/password-toggle.js"></script>
+<script src="~/js/ajax-forms.js"></script>
 </body>
 </html>

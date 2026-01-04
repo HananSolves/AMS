@@ -69,19 +69,15 @@
                         {
                             @if (!course.IsEnrolled)
                             {
-                                <form asp-controller="Enrollment" asp-action="Enroll" method="post" class="flex-1">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="courseId" value="@course.Id" />
-                                    <button type="submit" class="w-full btn-primary text-sm py-2">Enroll</button>
-                                </form>
+                                <button class="enroll-btn btn-primary text-sm py-2 flex-1" data-course-id="@course.Id">
+                                    Enroll
+                                </button>
                             }
                             else
                             {
-                                <form asp-controller="Enrollment" asp-action="Unenroll" method="post" class="flex-1">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="courseId" value="@course.Id" />
-                                    <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded-lg transition">Unenroll</button>
-                                </form>
+                                <button class="unenroll-btn bg-red-500 hover:bg-red-600 text-white text-sm py-2 rounded-lg transition flex-1" data-course-id="@course.Id">
+                                    Unenroll
+                                </button>
                             }
                         }
                     </div>

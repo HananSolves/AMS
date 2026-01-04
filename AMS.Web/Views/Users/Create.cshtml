@@ -6,27 +6,27 @@
 
 <div class="max-w-3xl mx-auto py-8">
     <div class="bg-white py-8 px-6 shadow rounded-lg">
-        <form asp-action="Create" method="post" class="space-y-6">
-            @Html.AntiForgeryToken()
+        <form asp-action="Create" method="post" class="space-y-6" id="userCreateForm">
+             @* @Html.AntiForgeryToken() *@
             <div asp-validation-summary="All" class="text-red-600 text-sm"></div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label asp-for="FirstName" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                    <input asp-for="FirstName" type="text" class="input-field" required />
+                    <input asp-for="FirstName" type="text" class="input-field" required/>
                     <span asp-validation-for="FirstName" class="text-red-600 text-sm"></span>
                 </div>
 
                 <div>
                     <label asp-for="LastName" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                    <input asp-for="LastName" type="text" class="input-field" required />
+                    <input asp-for="LastName" type="text" class="input-field" required/>
                     <span asp-validation-for="LastName" class="text-red-600 text-sm"></span>
                 </div>
             </div>
 
             <div>
                 <label asp-for="Email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                <input asp-for="Email" type="email" class="input-field" required />
+                <input asp-for="Email" type="email" class="input-field" required/>
                 <span asp-validation-for="Email" class="text-red-600 text-sm"></span>
             </div>
 
@@ -43,7 +43,7 @@
 
             <div id="regNumberField" class="hidden">
                 <label asp-for="RegistrationNumber" class="block text-sm font-medium text-gray-700 mb-2">Registration Number</label>
-                <input asp-for="RegistrationNumber" type="text" class="input-field" placeholder="2023-CS-001" />
+                <input asp-for="RegistrationNumber" type="text" class="input-field" placeholder="2023-CS-001"/>
                 <span asp-validation-for="RegistrationNumber" class="text-red-600 text-sm"></span>
                 <p class="text-xs text-gray-500 mt-1">Format: YYYY-DEPT-###</p>
             </div>
@@ -51,11 +51,11 @@
             <div>
                 <label asp-for="Password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
                 <div class="relative">
-                    <input asp-for="Password" type="password" id="registerPassword" class="input-field pr-10" required />
+                    <input asp-for="Password" type="password" id="registerPassword" class="input-field pr-10" required/>
 
                     <button type="button" onclick="togglePassword('registerPassword','eye-path-register')" class="absolute inset-y-0 right-0 pr-3 flex items-center z-10 focus:outline-none min-w-[20px] min-h-[20px]" aria-label="Toggle password visibility">
                         <svg id="eye-icon-register" class="h-5 w-5 text-gray-400 hover:text-primary-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path id="eye-path-register" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            <path id="eye-path-register" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
                     </button>
                 </div>
@@ -66,11 +66,11 @@
             <div>
                 <label asp-for="ConfirmPassword" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
                 <div class="relative">
-                    <input asp-for="ConfirmPassword" type="password" id="registerConfirmPassword" class="input-field pr-10" required />
+                    <input asp-for="ConfirmPassword" type="password" id="registerConfirmPassword" class="input-field pr-10" required/>
 
                     <button type="button" onclick="togglePassword('registerConfirmPassword','eye-path-confirm-register')" class="absolute inset-y-0 right-0 pr-3 flex items-center z-10 focus:outline-none min-w-[20px] min-h-[20px]" aria-label="Toggle confirm password visibility">
                         <svg id="eye-icon-confirm-register" class="h-5 w-5 text-gray-400 hover:text-primary-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path id="eye-path-confirm-register" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            <path id="eye-path-confirm-register" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                         </svg>
                     </button>
                 </div>

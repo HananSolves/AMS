@@ -13,21 +13,21 @@
     </div>
 
     <div class="card">
-        <form asp-action="Create" method="post" class="space-y-6">
-            @Html.AntiForgeryToken()
-            
+        <form asp-action="Create" method="post" class="space-y-6" id="courseCreateForm">
+             @* @Html.AntiForgeryToken() *@
+
             <div asp-validation-summary="All" class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded"></div>
 
             <div>
                 <label asp-for="CourseCode" class="block text-sm font-medium text-gray-700 mb-2">Course Code</label>
-                <input asp-for="CourseCode" type="text" class="input-field" placeholder="CSC-414" required />
+                <input asp-for="CourseCode" type="text" class="input-field" placeholder="CSC-414" required/>
                 <span asp-validation-for="CourseCode" class="text-red-600 text-sm"></span>
                 <p class="text-xs text-gray-500 mt-1">Format: ABC-123</p>
             </div>
 
             <div>
                 <label asp-for="CourseName" class="block text-sm font-medium text-gray-700 mb-2">Course Name</label>
-                <input asp-for="CourseName" type="text" class="input-field" placeholder="Enterprise Application Development" required />
+                <input asp-for="CourseName" type="text" class="input-field" placeholder="Enterprise Application Development" required/>
                 <span asp-validation-for="CourseName" class="text-red-600 text-sm"></span>
             </div>
 
@@ -39,7 +39,7 @@
 
             <div>
                 <label asp-for="CreditHours" class="block text-sm font-medium text-gray-700 mb-2">Credit Hours</label>
-                <input asp-for="CreditHours" type="number" min="1" max="6" class="input-field" required />
+                <input asp-for="CreditHours" type="number" min="1" max="6" class="input-field" required/>
                 <span asp-validation-for="CreditHours" class="text-red-600 text-sm"></span>
             </div>
 
@@ -63,11 +63,11 @@
             }
             else
             {
-                <input type="hidden" asp-for="TeacherId" value="@ViewBag.TeacherId" />
+                <input type="hidden" asp-for="TeacherId" value="@ViewBag.TeacherId"/>
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <p class="text-sm text-blue-800">
                         <svg class="inline h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         You will be automatically assigned as the teacher for this course.
                     </p>

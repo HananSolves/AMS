@@ -12,14 +12,14 @@
     </div>
 
     <div class="card">
-        <form id="attendanceForm" method="post" asp-action="Mark" class="space-y-6">
-            @Html.AntiForgeryToken()
-            
-            <input type="hidden" name="CourseId" value="@course?.Id" />
+        <form id="attendanceMarkForm" method="post" asp-action="Mark" class="space-y-6">
+             @* @Html.AntiForgeryToken() *@
+
+            <input type="hidden" name="CourseId" value="@course?.Id"/>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
-                <input type="date" name="Date" class="input-field" value="@DateTime.Now.ToString("yyyy-MM-dd")" required />
+                <input type="date" name="Date" class="input-field" value="@DateTime.Now.ToString("yyyy-MM-dd")" required/>
             </div>
 
             @if (enrollments != null && enrollments.Any())
@@ -31,31 +31,31 @@
                         {
                             var enrollment = enrollments[i];
                             <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
-                                <input type="hidden" name="Students[@i].StudentId" value="@enrollment.StudentId" />
-                                
+                                <input type="hidden" name="Students[@i].StudentId" value="@enrollment.StudentId"/>
+
                                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div class="flex-1">
                                         <p class="font-medium text-gray-900">@enrollment.StudentName</p>
                                         <p class="text-sm text-gray-600">@enrollment.RegistrationNumber</p>
                                     </div>
-                                    
+
                                     <div class="flex gap-2">
                                         <label class="inline-flex items-center">
-                                            <input type="radio" name="Students[@i].Status" value="1" class="text-primary-600 focus:ring-primary-500 h-4 w-4" required />
+                                            <input type="radio" name="Students[@i].Status" value="1" class="text-primary-600 focus:ring-primary-500 h-4 w-4" required/>
                                             <span class="ml-2 text-sm text-gray-700">Present</span>
                                         </label>
                                         <label class="inline-flex items-center">
-                                            <input type="radio" name="Students[@i].Status" value="2" class="text-primary-600 focus:ring-primary-500 h-4 w-4" />
+                                            <input type="radio" name="Students[@i].Status" value="2" class="text-primary-600 focus:ring-primary-500 h-4 w-4"/>
                                             <span class="ml-2 text-sm text-gray-700">Absent</span>
                                         </label>
                                         <label class="inline-flex items-center">
-                                            <input type="radio" name="Students[@i].Status" value="3" class="text-primary-600 focus:ring-primary-500 h-4 w-4" />
+                                            <input type="radio" name="Students[@i].Status" value="3" class="text-primary-600 focus:ring-primary-500 h-4 w-4"/>
                                             <span class="ml-2 text-sm text-gray-700">Late</span>
                                         </label>
                                     </div>
-                                    
+
                                     <div class="flex-1">
-                                        <input type="text" name="Students[@i].Remarks" class="input-field text-sm" placeholder="Remarks (optional)" />
+                                        <input type="text" name="Students[@i].Remarks" class="input-field text-sm" placeholder="Remarks (optional)"/>
                                     </div>
                                 </div>
                             </div>
@@ -72,7 +72,7 @@
             {
                 <div class="text-center py-12">
                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
                     </svg>
                     <h3 class="mt-2 text-sm font-medium text-gray-900">No students enrolled</h3>
                     <p class="mt-1 text-sm text-gray-500">There are no students enrolled in this course yet.</p>
