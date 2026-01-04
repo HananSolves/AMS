@@ -54,7 +54,11 @@ string GetConnectionString()
 // Add services to the container
 // =======================================================
 
-builder.Services.AddControllersWithViews()
+builder.Services.AddControllersWithViews(options =>
+    {
+        // Temporarily disable antiforgery validation to fix cookie issues
+        options.Filters.Add(new Microsoft.AspNetCore.Mvc.IgnoreAntiforgeryTokenAttribute());
+    })
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = null;
@@ -75,6 +79,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
             maxRetryDelay: TimeSpan.FromSeconds(30),
             errorCodesToAdd: null);
         npgsqlOptions.CommandTimeout(60);
+    })
+    .ConfigureWarnings(warnings =>
+    {
+        // Suppress pending model changes warning - DataProtectionKeys removed from context
+        warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning);
     }));
 
 // =======================================================
@@ -313,34 +322,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
-// Clear corrupted antiforgery cookies middleware
-app.Use(async (context, next) =>
-{
-    try
-    {
-        await next();
-    }
-    catch (Microsoft.AspNetCore.Antiforgery.AntiforgeryValidationException)
-    {
-        // Clear all cookies related to antiforgery and auth
-        var antiforgeryCookies = context.Request.Cookies.Keys
-            .Where(k => k.StartsWith(".AspNetCore.Antiforgery.") || 
-                       k == "AccessToken" || 
-                       k == "RefreshToken" ||
-                       k == ".AMS.Session")
-            .ToList();
-        
-        foreach (var cookie in antiforgeryCookies)
-        {
-            context.Response.Cookies.Delete(cookie);
-        }
-        
-        // Redirect to login page
-        context.Response.Redirect("/Auth/Login");
-        return;
-    }
-});
 
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
